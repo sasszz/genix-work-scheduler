@@ -1,844 +1,525 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Work Week Scheduler</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #0f0f0f;
-        --surface: #1a1a1a;
-        --surface2: #222222;
-        --border: #2e2e2e;
-        --border2: #3a3a3a;
-        --text: #f0ede8;
-        --muted: #888;
-        --dim: #555;
-        --accent: #c8f060;
-        --accent-dim: #8aaa2a;
-        --font-sans: "DM Sans", sans-serif;
-        --font-mono: "DM Mono", monospace;
-      }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: var(--font-sans);
-        font-size: 14px;
-        min-height: 100vh;
-      }
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Work Week Scheduler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #222222;
+  --border: #2e2e2e;
+  --border2: #3a3a3a;
+  --text: #f0ede8;
+  --muted: #888;
+  --dim: #555;
+  --accent: #c8f060;
+  --accent-dim: #8aaa2a;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; min-height: 100vh; }
 
-      header {
-        border-bottom: 1px solid var(--border);
-        padding: 20px 32px;
-        display: flex;
-        align-items: baseline;
-        gap: 16px;
-      }
-      header h1 {
-        font-family: var(--font-mono);
-        font-size: 15px;
-        font-weight: 500;
-        color: var(--accent);
-        letter-spacing: 0.02em;
-      }
-      header span {
-        font-size: 12px;
-        color: var(--dim);
-        font-family: var(--font-mono);
-      }
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+header h1 { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--accent); letter-spacing: .02em; }
+header span { font-size: 12px; color: var(--dim); font-family: var(--font-mono); }
 
-      .layout {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        min-height: calc(100vh - 61px);
-      }
+.layout { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 61px); }
 
-      .sidebar {
-        border-right: 1px solid var(--border);
-        padding: 24px 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-      }
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
-      .section-title {
-        font-family: var(--font-mono);
-        font-size: 10px;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--dim);
-        margin-bottom: 12px;
-      }
+.section-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 12px;
+}
 
-      .loc-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 10px;
-        border-radius: 6px;
-        border: 1px solid var(--border);
-        margin-bottom: 6px;
-        cursor: pointer;
-        transition: border-color 0.15s, background 0.15s;
-      }
-      .loc-item:hover {
-        border-color: var(--border2);
-        background: var(--surface);
-      }
-      .loc-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        flex-shrink: 0;
-      }
-      .loc-info {
-        flex: 1;
-        min-width: 0;
-      }
-      .loc-name {
-        font-size: 13px;
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .loc-addr {
-        font-size: 11px;
-        color: var(--muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-top: 1px;
-      }
-      .loc-time {
-        font-family: var(--font-mono);
-        font-size: 10px;
-        color: var(--dim);
-        white-space: nowrap;
-      }
-      .del-btn {
-        background: none;
-        border: none;
-        color: var(--dim);
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 1;
-        padding: 2px 4px;
-        border-radius: 3px;
-        flex-shrink: 0;
-      }
-      .del-btn:hover {
-        color: #e05050;
-        background: rgba(224, 80, 80, 0.1);
-      }
+.loc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.loc-item:hover { border-color: var(--border2); background: var(--surface); }
+.loc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.loc-info { flex: 1; min-width: 0; }
+.loc-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loc-addr { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.loc-time { font-family: var(--font-mono); font-size: 10px; color: var(--dim); white-space: nowrap; }
+.del-btn { background: none; border: none; color: var(--dim); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 4px; border-radius: 3px; flex-shrink: 0; }
+.del-btn:hover { color: #e05050; background: rgba(224,80,80,.1); }
 
-      .add-form {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .add-form input {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 5px;
-        color: var(--text);
-        font-family: var(--font-sans);
-        font-size: 12px;
-        height: 30px;
-        padding: 0 10px;
-        transition: border-color 0.15s;
-      }
-      .add-form input:focus {
-        outline: none;
-        border-color: var(--accent-dim);
-      }
-      .add-form input::placeholder {
-        color: var(--dim);
-      }
-      .time-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-      }
-      .add-btn {
-        background: var(--accent);
-        color: #0f0f0f;
-        border: none;
-        border-radius: 5px;
-        height: 30px;
-        font-family: var(--font-mono);
-        font-size: 11px;
-        font-weight: 500;
-        cursor: pointer;
-        letter-spacing: 0.04em;
-        transition: opacity 0.15s;
-        margin-top: 2px;
-      }
-      .add-btn:hover {
-        opacity: 0.85;
-      }
+.add-form { display: flex; flex-direction: column; gap: 6px; }
+.add-form input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  height: 30px;
+  padding: 0 10px;
+  transition: border-color .15s;
+}
+.add-form input:focus { outline: none; border-color: var(--accent-dim); }
+.add-form input::placeholder { color: var(--dim); }
+.time-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.add-btn {
+  background: var(--accent);
+  color: #0f0f0f;
+  border: none;
+  border-radius: 5px;
+  height: 30px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: .04em;
+  transition: opacity .15s;
+  margin-top: 2px;
+}
+.add-btn:hover { opacity: .85; }
 
-      .main {
-        padding: 28px 32px;
-      }
+.main { padding: 28px 32px; }
 
-      .week-header {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-      }
-      .week-label {
-        font-family: var(--font-mono);
-        font-size: 13px;
-        color: var(--text);
-      }
-      .week-input {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 5px;
-        color: var(--text);
-        font-family: var(--font-mono);
-        font-size: 12px;
-        height: 30px;
-        padding: 0 10px;
-        color-scheme: dark;
-      }
-      .week-input:focus {
-        outline: none;
-        border-color: var(--accent-dim);
-      }
+.week-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.week-label { font-family: var(--font-mono); font-size: 13px; color: var(--text); }
+.week-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  height: 30px;
+  padding: 0 10px;
+  color-scheme: dark;
+}
+.week-input:focus { outline: none; border-color: var(--accent-dim); }
 
-      .ghost-btn {
-        background: none;
-        border: 1px solid var(--border);
-        border-radius: 5px;
-        color: var(--muted);
-        font-family: var(--font-mono);
-        font-size: 11px;
-        height: 30px;
-        padding: 0 12px;
-        cursor: pointer;
-        transition: border-color 0.15s, color 0.15s;
-      }
-      .ghost-btn:hover {
-        border-color: var(--border2);
-        color: var(--text);
-      }
+.ghost-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  height: 30px;
+  padding: 0 12px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.ghost-btn:hover { border-color: var(--border2); color: var(--text); }
 
-      .gcal-btn {
-        background: var(--accent);
-        border: none;
-        border-radius: 5px;
-        color: #0f0f0f;
-        font-family: var(--font-mono);
-        font-size: 11px;
-        font-weight: 500;
-        height: 30px;
-        padding: 0 16px;
-        cursor: pointer;
-        letter-spacing: 0.04em;
-        transition: opacity 0.15s;
-        margin-left: auto;
-      }
-      .gcal-btn:hover {
-        opacity: 0.85;
-      }
-      .gcal-btn:disabled {
-        opacity: 0.3;
-        cursor: default;
-      }
+.gcal-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 5px;
+  color: #0f0f0f;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  height: 30px;
+  padding: 0 16px;
+  cursor: pointer;
+  letter-spacing: .04em;
+  transition: opacity .15s;
+  margin-left: auto;
+}
+.gcal-btn:hover { opacity: .85; }
+.gcal-btn:disabled { opacity: .3; cursor: default; }
 
-      .days-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-        margin-bottom: 24px;
-      }
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
 
-      .day-col {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
+.day-col { display: flex; flex-direction: column; gap: 0; }
 
-      .day-header-cell {
-        font-family: var(--font-mono);
-        font-size: 11px;
-        color: var(--muted);
-        text-align: center;
-        padding-bottom: 8px;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 8px;
-      }
-      .day-header-cell .date-num {
-        font-size: 18px;
-        font-weight: 300;
-        color: var(--text);
-        display: block;
-        margin-bottom: 2px;
-      }
-      .day-header-cell.today .date-num {
-        color: var(--accent);
-      }
+.day-header-cell {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.day-header-cell .date-num { font-size: 18px; font-weight: 300; color: var(--text); display: block; margin-bottom: 2px; }
+.day-header-cell.today .date-num { color: var(--accent); }
 
-      .day-slot {
-        min-height: 80px;
-        border: 1px dashed var(--border);
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: border-color 0.15s, background 0.15s;
-        padding: 12px 8px;
-        text-align: center;
-        position: relative;
-      }
-      .day-slot:hover {
-        border-color: var(--border2);
-        background: var(--surface);
-      }
-      .day-slot.assigned {
-        border-style: solid;
-      }
-      .day-slot .slot-name {
-        font-size: 13px;
-        font-weight: 500;
-        margin-bottom: 4px;
-      }
-      .day-slot .slot-time {
-        font-family: var(--font-mono);
-        font-size: 10px;
-        opacity: 0.7;
-      }
-      .day-slot .slot-addr {
-        font-size: 10px;
-        opacity: 0.6;
-        margin-top: 3px;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .day-slot .empty-hint {
-        font-size: 11px;
-        color: var(--dim);
-      }
-      .cycle-hint {
-        position: absolute;
-        bottom: 4px;
-        right: 6px;
-        font-size: 9px;
-        font-family: var(--font-mono);
-        color: var(--dim);
-        opacity: 0;
-        transition: opacity 0.15s;
-      }
-      .day-slot:hover .cycle-hint {
-        opacity: 1;
-      }
+.day-slot {
+  min-height: 80px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  padding: 12px 8px;
+  text-align: center;
+  position: relative;
+}
+.day-slot:hover { border-color: var(--border2); background: var(--surface); }
+.day-slot.assigned { border-style: solid; }
+.day-slot .slot-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.day-slot .slot-time { font-family: var(--font-mono); font-size: 10px; opacity: .7; }
+.day-slot .slot-addr { font-size: 10px; opacity: .6; margin-top: 3px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.day-slot .empty-hint { font-size: 11px; color: var(--dim); }
+.cycle-hint {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--dim);
+  opacity: 0;
+  transition: opacity .15s;
+}
+.day-slot:hover .cycle-hint { opacity: 1; }
 
-      .toast {
-        position: fixed;
-        bottom: 24px;
-        left: 50%;
-        transform: translateX(-50%) translateY(60px);
-        background: var(--surface2);
-        border: 1px solid var(--border2);
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-family: var(--font-mono);
-        font-size: 12px;
-        color: var(--text);
-        transition: transform 0.25s ease;
-        z-index: 100;
-        white-space: nowrap;
-      }
-      .toast.show {
-        transform: translateX(-50%) translateY(0);
-      }
-      .toast.success {
-        border-color: var(--accent-dim);
-        color: var(--accent);
-      }
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  transition: transform .25s ease;
+  z-index: 100;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--accent-dim); color: var(--accent); }
 
-      .legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 20px;
-      }
-      .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        color: var(--muted);
-      }
-      .legend-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-      }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; }
 
-      .instructions {
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 16px 20px;
-        background: var(--surface);
-        font-size: 12px;
-        line-height: 1.7;
-        color: var(--muted);
-      }
-      .instructions strong {
-        color: var(--text);
-        font-weight: 500;
-      }
-      .instructions a {
-        color: var(--accent-dim);
-      }
+.instructions {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  background: var(--surface);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.instructions strong { color: var(--text); font-weight: 500; }
+.instructions a { color: var(--accent-dim); }
 
-      @media (max-width: 700px) {
-        .layout {
-          grid-template-columns: 1fr;
-        }
-        .sidebar {
-          border-right: none;
-          border-bottom: 1px solid var(--border);
-        }
-        .days-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
-        header {
-          padding: 14px 16px;
-        }
-        .main {
-          padding: 16px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <h1>// work-scheduler</h1>
-      <span>templates saved locally · builds Google Calendar events</span>
-    </header>
+@media (max-width: 700px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+  .days-grid { grid-template-columns: repeat(3, 1fr); }
+  header { padding: 14px 16px; }
+  .main { padding: 16px; }
+}
+</style>
+</head>
+<body>
 
-    <div class="layout">
-      <aside class="sidebar">
-        <div>
-          <div class="section-title">Locations</div>
-          <div id="loc-list"></div>
+<header>
+  <h1>// work-scheduler</h1>
+  <span>templates saved locally · builds Google Calendar events</span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div>
+      <div class="section-title">Locations</div>
+      <div id="loc-list"></div>
+    </div>
+    <div>
+      <div class="section-title">Add location</div>
+      <div class="add-form">
+        <input id="f-name" placeholder="Label (e.g. Main Office)" maxlength="40"/>
+        <input id="f-addr" placeholder="Full address"/>
+        <div class="time-row">
+          <input id="f-start" type="time" value="09:00" title="Start time"/>
+          <input id="f-end" type="time" value="17:00" title="End time"/>
         </div>
-        <div>
-          <div class="section-title">Add location</div>
-          <div class="add-form">
-            <input
-              id="f-name"
-              placeholder="Label (e.g. Main Office)"
-              maxlength="40"
-            />
-            <input id="f-addr" placeholder="Full address" />
-            <div class="time-row">
-              <input
-                id="f-start"
-                type="time"
-                value="09:00"
-                title="Start time"
-              />
-              <input id="f-end" type="time" value="17:00" title="End time" />
-            </div>
-            <button class="add-btn" onclick="addLoc()">+ ADD LOCATION</button>
-          </div>
-        </div>
-        <div class="instructions">
-          <strong>How to use:</strong><br />
-          1. Add your recurring onsite locations above — they'll be remembered
-          next time.<br /><br />
-          2. Each Friday, pick the week date, click days to assign locations,
-          then hit <strong>Add to Google Calendar</strong>.<br /><br />
-          3. Each event opens in Google Calendar pre-filled — just confirm to
-          save.<br /><br />
-          <strong>Tip:</strong> Click a day repeatedly to cycle through
-          locations. Click the assigned location again to clear it.
-        </div>
-      </aside>
+        <button class="add-btn" onclick="addLoc()">+ ADD LOCATION</button>
+      </div>
+    </div>
+    <div class="instructions">
+      <strong>How to use:</strong><br/>
+      1. Add your recurring onsite locations above — they'll be remembered next time.<br/><br/>
+      2. Each Friday, pick the week date, click days to assign locations, then hit <strong>Add to Google Calendar</strong>.<br/><br/>
+      3. Each event opens in Google Calendar pre-filled — just confirm to save.<br/><br/>
+      <strong>Tip:</strong> Click a day repeatedly to cycle through locations. Click the assigned location again to clear it.
+    </div>
+  </aside>
 
-      <main class="main">
-        <div class="week-header">
-          <span class="week-label">Week of</span>
-          <input id="week-of" type="date" class="week-input" />
-          <button class="ghost-btn" onclick="clearWeek()">Clear week</button>
-          <button class="gcal-btn" id="gcal-btn" onclick="addAllToCalendar()">
-            Add to Google Calendar →
-          </button>
-        </div>
-
-        <div id="legend" class="legend"></div>
-        <div class="days-grid" id="days-grid"></div>
-      </main>
+  <main class="main">
+    <div class="week-header">
+      <span class="week-label">Week of</span>
+      <input id="week-of" type="date" class="week-input"/>
+      <button class="ghost-btn" onclick="clearWeek()">Clear week</button>
+      <button class="gcal-btn" id="gcal-btn" onclick="addAllToCalendar()">Add to Google Calendar →</button>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div id="legend" class="legend"></div>
+    <div class="days-grid" id="days-grid"></div>
+  </main>
+</div>
 
-    <script>
-      const PALETTE = [
-        {
-          dot: "#c8f060",
-          bg: "rgba(200,240,96,.08)",
-          border: "rgba(200,240,96,.35)",
-          text: "#c8f060",
-        },
-        {
-          dot: "#60c8f0",
-          bg: "rgba(96,200,240,.08)",
-          border: "rgba(96,200,240,.35)",
-          text: "#60c8f0",
-        },
-        {
-          dot: "#f060c8",
-          bg: "rgba(240,96,200,.08)",
-          border: "rgba(240,96,200,.35)",
-          text: "#f060c8",
-        },
-        {
-          dot: "#f0c860",
-          bg: "rgba(240,200,96,.08)",
-          border: "rgba(240,200,96,.35)",
-          text: "#f0c860",
-        },
-        {
-          dot: "#c860f0",
-          bg: "rgba(200,96,240,.08)",
-          border: "rgba(200,96,240,.35)",
-          text: "#c860f0",
-        },
-        {
-          dot: "#60f0c8",
-          bg: "rgba(96,240,200,.08)",
-          border: "rgba(96,240,200,.35)",
-          text: "#60f0c8",
-        },
-        {
-          dot: "#f09060",
-          bg: "rgba(240,144,96,.08)",
-          border: "rgba(240,144,96,.35)",
-          text: "#f09060",
-        },
-      ];
+<div class="toast" id="toast"></div>
 
-      const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-      const DAY_OFFSETS = [0, 1, 2, 3, 4];
+<script>
+const PALETTE = [
+  { dot: '#c8f060', bg: 'rgba(200,240,96,.08)', border: 'rgba(200,240,96,.35)', text: '#c8f060' },
+  { dot: '#60c8f0', bg: 'rgba(96,200,240,.08)', border: 'rgba(96,200,240,.35)', text: '#60c8f0' },
+  { dot: '#f060c8', bg: 'rgba(240,96,200,.08)', border: 'rgba(240,96,200,.35)', text: '#f060c8' },
+  { dot: '#f0c860', bg: 'rgba(240,200,96,.08)', border: 'rgba(240,200,96,.35)', text: '#f0c860' },
+  { dot: '#c860f0', bg: 'rgba(200,96,240,.08)', border: 'rgba(200,96,240,.35)', text: '#c860f0' },
+  { dot: '#60f0c8', bg: 'rgba(96,240,200,.08)', border: 'rgba(96,240,200,.35)', text: '#60f0c8' },
+  { dot: '#f09060', bg: 'rgba(240,144,96,.08)', border: 'rgba(240,144,96,.35)', text: '#f09060' },
+];
 
-      // LOCATIONS ADD HERE
-      const SEED_LOCS = [
-        {
-          id: -1,
-          name: "Shamrock",
-          addr: "1100 Glendon Ave #1600, Los Angeles, CA 90024",
-          start: "08:00",
-          end: "17:00",
-          ci: 0,
-        },
-        {
-          id: -2,
-          name: "TechMD",
-          addr: "2701 N Ontario St, Burbank, CA 91504",
-          start: "10:00",
-          end: "14:00",
-          ci: 1,
-        },
-        {
-          id: -3,
-          name: "DPP",
-          addr: "16027 Ventura Blvd #301, Encino, CA 91436",
-          start: "10:00",
-          end: "14:00",
-          ci: 2,
-        },
-        {
-          id: -4,
-          name: "Remote",
-          addr: "Working from home",
-          start: "09:00",
-          end: "17:00",
-          ci: 4,
-        },
-        { id: -5, name: "PTO", addr: "", start: "09:00", end: "17:00", ci: 3 },
-      ];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+const DAY_OFFSETS = [0,1,2,3,4];
 
-      let userLocs = JSON.parse(localStorage.getItem("ws_locs") || "[]").filter(
-        (l) => l.id > 0
-      );
-      let locs = [...SEED_LOCS, ...userLocs];
-      let sched = { Mon: null, Tue: null, Wed: null, Thu: null, Fri: null };
-      let nextId = parseInt(localStorage.getItem("ws_nextId") || "1");
-      let colorIdx = parseInt(localStorage.getItem("ws_colorIdx") || "5");
+const SEED_LOCS = [
+  { id: -1, name: 'Shamrock', addr: '1100 Glendon Ave #1600, Los Angeles, CA 90024', start: '08:00', end: '17:00', ci: 0 },
+  { id: -2, name: 'TechMD',   addr: '2701 N Ontario St, Burbank, CA 91504',          start: '10:00', end: '14:00', ci: 1 },
+  { id: -3, name: 'DPP',      addr: '16027 Ventura Blvd #301, Encino, CA 91436',     start: '10:00', end: '14:00', ci: 2 },
+  { id: -4, name: 'Remote',   addr: 'Working from home',                              start: '09:00', end: '17:00', ci: 4 },
+  { id: -5, name: 'PTO',      addr: '',                                               start: '09:00', end: '17:00', ci: 3 },
+];
 
-      function save() {
-        localStorage.setItem(
-          "ws_locs",
-          JSON.stringify(locs.filter((l) => l.id > 0))
-        );
-        localStorage.setItem("ws_nextId", String(nextId));
-        localStorage.setItem("ws_colorIdx", String(colorIdx));
-      }
+let userLocs = JSON.parse(localStorage.getItem('ws_locs') || '[]').filter(l => l.id > 0);
+let locs = [...SEED_LOCS, ...userLocs];
+let sched = { Mon: null, Tue: null, Wed: null, Thu: null, Fri: null };
+let nextId = parseInt(localStorage.getItem('ws_nextId') || '1');
+let colorIdx = parseInt(localStorage.getItem('ws_colorIdx') || '5');
 
-      function addLoc() {
-        const name = document.getElementById("f-name").value.trim();
-        const addr = document.getElementById("f-addr").value.trim();
-        const start = document.getElementById("f-start").value;
-        const end = document.getElementById("f-end").value;
-        if (!name) {
-          showToast("Enter a location name");
-          return;
-        }
-        locs.push({
-          id: nextId++,
-          name,
-          addr,
-          start,
-          end,
-          ci: colorIdx % PALETTE.length,
-        });
-        colorIdx++;
-        document.getElementById("f-name").value = "";
-        document.getElementById("f-addr").value = "";
-        save();
-        render();
-      }
+function save() {
+  localStorage.setItem('ws_locs', JSON.stringify(locs.filter(l => l.id > 0)));
+  localStorage.setItem('ws_nextId', String(nextId));
+  localStorage.setItem('ws_colorIdx', String(colorIdx));
+}
 
-      function removeLoc(id) {
-        locs = locs.filter((l) => l.id !== id);
-        DAYS.forEach((d) => {
-          if (sched[d] === id) sched[d] = null;
-        });
-        save();
-        render();
-      }
+function addLoc() {
+  const name = document.getElementById('f-name').value.trim();
+  const addr = document.getElementById('f-addr').value.trim();
+  const start = document.getElementById('f-start').value;
+  const end = document.getElementById('f-end').value;
+  if (!name) { showToast('Enter a location name'); return; }
+  locs.push({ id: nextId++, name, addr, start, end, ci: colorIdx % PALETTE.length });
+  colorIdx++;
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-addr').value = '';
+  save();
+  render();
+}
 
-      function getLocById(id) {
-        return locs.find((l) => l.id === id);
-      }
+function removeLoc(id) {
+  locs = locs.filter(l => l.id !== id);
+  DAYS.forEach(d => { if (sched[d] === id) sched[d] = null; });
+  save();
+  render();
+}
 
-      function clickDay(day) {
-        const ids = locs.map((l) => l.id);
-        const cur = sched[day];
-        if (cur === null) {
-          sched[day] = ids[0] || null;
-        } else {
-          const i = ids.indexOf(cur);
-          sched[day] = i >= ids.length - 1 ? null : ids[i + 1];
-        }
-        render();
-      }
+function getLocById(id) { return locs.find(l => l.id === id); }
 
-      function clearWeek() {
-        DAYS.forEach((d) => (sched[d] = null));
-        render();
-      }
+function clickDay(day) {
+  const ids = locs.map(l => l.id);
+  const cur = sched[day];
+  if (cur === null) { sched[day] = ids[0] || null; }
+  else {
+    const i = ids.indexOf(cur);
+    sched[day] = i >= ids.length - 1 ? null : ids[i + 1];
+  }
+  render();
+}
 
-      function getMonday() {
-        const v = document.getElementById("week-of").value;
-        if (!v) return null;
-        return new Date(v + "T00:00:00");
-      }
+function clearWeek() {
+  DAYS.forEach(d => sched[d] = null);
+  render();
+}
 
-      function dayDate(offset) {
-        const mon = getMonday();
-        if (!mon) return null;
-        const d = new Date(mon);
-        d.setDate(d.getDate() + offset);
-        return d;
-      }
+function getMonday() {
+  const v = document.getElementById('week-of').value;
+  if (!v) return null;
+  return new Date(v + 'T00:00:00');
+}
 
-      function fmtDate(d) {
-        if (!d) return "";
-        return d.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        });
-      }
+function dayDate(offset) {
+  const mon = getMonday();
+  if (!mon) return null;
+  const d = new Date(mon);
+  d.setDate(d.getDate() + offset);
+  return d;
+}
 
-      function toGCalDT(dateObj, timeStr) {
-        const [h, m] = timeStr.split(":");
-        const d = new Date(dateObj);
-        d.setHours(parseInt(h), parseInt(m), 0, 0);
-        return d
-          .toISOString()
-          .replace(/[-:]/g, "")
-          .replace(/\.\d{3}/, "");
-      }
+function fmtDate(d) {
+  if (!d) return '';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
 
-      function buildGCalUrl(loc, dateObj) {
-        const start = toGCalDT(dateObj, loc.start);
-        const end = toGCalDT(dateObj, loc.end);
-        const title = encodeURIComponent(
-          loc.name + (loc.addr ? " – " + loc.addr.split(",")[0] : "")
-        );
-        const location = encodeURIComponent(loc.addr);
-        const details = encodeURIComponent(
-          loc.addr ? "Onsite at: " + loc.addr : ""
-        );
-        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&location=${location}&details=${details}`;
-      }
+function toGCalDT(dateObj, timeStr) {
+  const [h, m] = timeStr.split(':');
+  const d = new Date(dateObj);
+  d.setHours(parseInt(h), parseInt(m), 0, 0);
+  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
 
-      function addAllToCalendar() {
-        const mon = getMonday();
-        if (!mon) {
-          showToast("Set a week date first");
-          return;
-        }
-        const assigned = DAYS.filter((d) => sched[d] !== null);
-        if (!assigned.length) {
-          showToast("Assign at least one day first");
-          return;
-        }
-        assigned.forEach((day, i) => {
-          const loc = getLocById(sched[day]);
-          if (!loc) return;
-          const date = dayDate(DAY_OFFSETS[DAYS.indexOf(day)]);
-          setTimeout(
-            () => window.open(buildGCalUrl(loc, date), "_blank"),
-            i * 350
-          );
-        });
-        showToast(
-          `Opening ${assigned.length} event${
-            assigned.length !== 1 ? "s" : ""
-          } in Google Calendar`,
-          true
-        );
-      }
+function buildGCalUrl(loc, dateObj) {
+  const start = toGCalDT(dateObj, loc.start);
+  const end = toGCalDT(dateObj, loc.end);
+  const title = encodeURIComponent(loc.name);
+  const location = encodeURIComponent(loc.addr);
+  const details = encodeURIComponent(loc.addr ? 'Onsite at: ' + loc.addr : '');
+  const calId = encodeURIComponent('4f2a6aa32cfa7ede9f7591bcb8189d8a7eb5de60a770a1a857055226046c9314@group.calendar.google.com');
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&location=${location}&details=${details}&src=${calId}`;
+}
 
-      function showToast(msg, success = false) {
-        const t = document.getElementById("toast");
-        t.textContent = msg;
-        t.className = "toast show" + (success ? " success" : "");
-        setTimeout(() => (t.className = "toast"), 2800);
-      }
+function addAllToCalendar() {
+  const mon = getMonday();
+  if (!mon) { showToast('Set a week date first'); return; }
+  const assigned = DAYS.filter(d => sched[d] !== null);
+  if (!assigned.length) { showToast('Assign at least one day first'); return; }
+  assigned.forEach((day, i) => {
+    const loc = getLocById(sched[day]);
+    if (!loc) return;
+    const date = dayDate(DAY_OFFSETS[DAYS.indexOf(day)]);
+    setTimeout(() => window.open(buildGCalUrl(loc, date), '_blank'), i * 350);
+  });
+  showToast(`Opening ${assigned.length} event${assigned.length !== 1 ? 's' : ''} in Google Calendar`, true);
+}
 
-      function renderLocList() {
-        const el = document.getElementById("loc-list");
-        if (!locs.length) {
-          el.innerHTML =
-            '<div style="font-size:12px;color:var(--dim);padding:8px 0">No locations yet.</div>';
-          return;
-        }
-        el.innerHTML = locs
-          .map((l) => {
-            const c = PALETTE[l.ci];
-            return `<div class="loc-item">
+function showToast(msg, success = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (success ? ' success' : '');
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+function renderLocList() {
+  const el = document.getElementById('loc-list');
+  if (!locs.length) { el.innerHTML = '<div style="font-size:12px;color:var(--dim);padding:8px 0">No locations yet.</div>'; return; }
+  el.innerHTML = locs.map(l => {
+    const c = PALETTE[l.ci];
+    return `<div class="loc-item">
       <div class="loc-dot" style="background:${c.dot}"></div>
       <div class="loc-info">
         <div class="loc-name">${l.name}</div>
-        ${l.addr ? `<div class="loc-addr">${l.addr}</div>` : ""}
+        ${l.addr ? `<div class="loc-addr">${l.addr}</div>` : ''}
       </div>
       <div class="loc-time">${l.start}–${l.end}</div>
-      ${
-        l.id > 0
-          ? `<button class="del-btn" onclick="removeLoc(${l.id})" title="Remove">×</button>`
-          : ""
-      }
+      ${l.id > 0 ? `<button class="del-btn" onclick="removeLoc(${l.id})" title="Remove">×</button>` : ''}
     </div>`;
-          })
-          .join("");
-      }
+  }).join('');
+}
 
-      function renderLegend() {
-        const assigned = [...new Set(Object.values(sched).filter(Boolean))];
-        if (!assigned.length) {
-          document.getElementById("legend").innerHTML = "";
-          return;
-        }
-        document.getElementById("legend").innerHTML = assigned
-          .map((id) => {
-            const l = getLocById(id);
-            if (!l) return "";
-            const c = PALETTE[l.ci];
-            return `<div class="legend-item"><div class="legend-dot" style="background:${c.dot}"></div>${l.name}</div>`;
-          })
-          .join("");
-      }
+function renderLegend() {
+  const assigned = [...new Set(Object.values(sched).filter(Boolean))];
+  if (!assigned.length) { document.getElementById('legend').innerHTML = ''; return; }
+  document.getElementById('legend').innerHTML = assigned.map(id => {
+    const l = getLocById(id);
+    if (!l) return '';
+    const c = PALETTE[l.ci];
+    return `<div class="legend-item"><div class="legend-dot" style="background:${c.dot}"></div>${l.name}</div>`;
+  }).join('');
+}
 
-      function renderGrid() {
-        const today = new Date();
-        const grid = document.getElementById("days-grid");
-        grid.innerHTML = DAYS.map((day, i) => {
-          const date = dayDate(DAY_OFFSETS[i]);
-          const isToday = date && date.toDateString() === today.toDateString();
-          const locId = sched[day];
-          const loc = locId ? getLocById(locId) : null;
-          const c = loc ? PALETTE[loc.ci] : null;
+function renderGrid() {
+  const today = new Date();
+  const grid = document.getElementById('days-grid');
+  grid.innerHTML = DAYS.map((day, i) => {
+    const date = dayDate(DAY_OFFSETS[i]);
+    const isToday = date && date.toDateString() === today.toDateString();
+    const locId = sched[day];
+    const loc = locId ? getLocById(locId) : null;
+    const c = loc ? PALETTE[loc.ci] : null;
 
-          const dateLabel = date
-            ? `<span class="date-num">${date.getDate()}</span>${date.toLocaleDateString(
-                "en-US",
-                { month: "short" }
-              )}`
-            : `<span class="date-num">—</span>${day}`;
+    const dateLabel = date
+      ? `<span class="date-num">${date.getDate()}</span>${date.toLocaleDateString('en-US',{month:'short'})}`
+      : `<span class="date-num">—</span>${day}`;
 
-          let slotContent = "";
-          if (loc) {
-            slotContent = `<div class="slot-name" style="color:${c.text}">${
-              loc.name
-            }</div>
-        <div class="slot-time" style="color:${c.text}">${loc.start} – ${
-              loc.end
-            }</div>
-        ${
-          loc.addr
-            ? `<div class="slot-addr" style="color:${c.text}">${loc.addr}</div>`
-            : ""
-        }
+    let slotContent = '';
+    if (loc) {
+      slotContent = `<div class="slot-name" style="color:${c.text}">${loc.name}</div>
+        <div class="slot-time" style="color:${c.text}">${loc.start} – ${loc.end}</div>
+        ${loc.addr ? `<div class="slot-addr" style="color:${c.text}">${loc.addr}</div>` : ''}
         <span class="cycle-hint">click to change</span>`;
-          } else {
-            slotContent = `<div class="empty-hint">click to assign</div>`;
-          }
+    } else {
+      slotContent = `<div class="empty-hint">click to assign</div>`;
+    }
 
-          return `<div class="day-col">
-      <div class="day-header-cell ${isToday ? "today" : ""}">${dateLabel}</div>
-      <div class="day-slot ${loc ? "assigned" : ""}" 
-           style="${loc ? `background:${c.bg};border-color:${c.border}` : ""}"
+    return `<div class="day-col">
+      <div class="day-header-cell ${isToday ? 'today' : ''}">${dateLabel}</div>
+      <div class="day-slot ${loc ? 'assigned' : ''}" 
+           style="${loc ? `background:${c.bg};border-color:${c.border}` : ''}"
            onclick="clickDay('${day}')">
         ${slotContent}
       </div>
     </div>`;
-        }).join("");
+  }).join('');
 
-        const assignedCount = DAYS.filter((d) => sched[d] !== null).length;
-        document.getElementById("gcal-btn").disabled = assignedCount === 0;
-      }
+  const assignedCount = DAYS.filter(d => sched[d] !== null).length;
+  document.getElementById('gcal-btn').disabled = assignedCount === 0;
+}
 
-      function render() {
-        renderLocList();
-        renderLegend();
-        renderGrid();
-      }
+function render() {
+  renderLocList();
+  renderLegend();
+  renderGrid();
+}
 
-      // Set default week to current Monday
-      const now = new Date();
-      const mon = new Date(now);
-      mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-      document.getElementById("week-of").value = mon
-        .toISOString()
-        .split("T")[0];
-      document.getElementById("week-of").addEventListener("change", render);
+// Set default week to current Monday
+const now = new Date();
+const mon = new Date(now);
+mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+document.getElementById('week-of').value = mon.toISOString().split('T')[0];
+document.getElementById('week-of').addEventListener('change', render);
 
-      render();
-    </script>
-  </body>
+render();
+</script>
+</body>
 </html>
